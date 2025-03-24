@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  fullname     String
+  password     String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  role         String         @default("user")
+  appointments Appointment[]
+  Notification Notification[]
+}
+
+model Appointment {
+  id              Int       @id @default(autoincrement())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  serviceId       Int
+  fullname        String
+  email           String
+  phonenumber     String
+  date            DateTime  @db.Date
+  time            String
+  message         String
+  status          String    @default("Pending")
+  declineReason   String?
+  rescheduledDate DateTime? @db.Date
+  service         Service   @relation(fields: [serviceId], references: [id])
+}
+
+model Service {
+  id           Int           @id @default(autoincrement())
+  name         String
+  description  String
+  categoryId   Int
+  typeId       Int?
+  price        Decimal
+  duration     Int?
+  durationUnit String?
+  imageUrl     String?
+  Appointment  Appointment[]
+  category     Category      @relation(fields: [categoryId], references: [id])
+  type         ServiceType?  @relation(fields: [typeId], references: [id])
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  services Service[]
+}
+
+model ServiceType {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  services Service[]
+}
+
+model News {
+  id          Int      @id @default(autoincrement())
+  date        DateTime @db.Date
+  title       String
+  description String
+  link        String
+  imageUrl    String
+}
+
+model Blogs {
+  id          Int      @id @default(autoincrement())
+  date        DateTime @db.Date
+  title       String
+  description String
+  author      String
+  link        String
+  imageUrl    String
+}
+
+model Testimonials {
+  id       Int    @id @default(autoincrement())
+  name     String
+  message  String
+  imageUrl String
+  status   String
+}
+
+model OurTeam {
+  id       Int    @id @default(autoincrement())
+  name     String
+  position String
+  imageUrl String
+}
+
+model Inquiry {
+  id          Int     @id @default(autoincrement())
+  fullname    String
+  message     String
+  email       String
+  phonenumber String
+  reply       String?
+}
+
+model Faqs {
+  id       Int    @id @default(autoincrement())
+  question String
+  answer   String
+}
+
+model Videos {
+  id        Int    @id @default(autoincrement())
+  title     String
+  videoPath String
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
